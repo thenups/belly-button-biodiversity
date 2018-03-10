@@ -1,29 +1,31 @@
 # Dependencies
+import numpy as np
+
 from flask import Flask, render_template, jsonify, redirect
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, func, inspect
 
 #################################################
 # Database Setup
 #################################################
 
-# engine = create_engine("sqlite:///static/data/belly_button_biodiversity.sqlite", echo=False)
-#
-# # reflect an existing database into a new model
-# Base = automap_base()
-# # reflect the tables
-# Base.prepare(engine, reflect=True)
-#
-# # Save reference to the table
-# Metadata = Base.classes.samples_metadata
-# Samples = Base.classes.samples
-# Otu = Base.classes.otu
-#
-# # Create our session (link) from Python to the DB
-# session = Session(engine)
+engine = create_engine("sqlite:///static/data/belly_button_biodiversity.sqlite", echo=False)
+
+# reflect an existing database into a new model
+Base = automap_base()
+# reflect the tables
+Base.prepare(engine, reflect=True)
+
+# Save reference to the table
+Metadata = Base.classes.samples_metadata
+Samples = Base.classes.samples
+Otu = Base.classes.otu
+
+# Create our session (link) from Python to the DB
+session = Session(engine)
 
 
 #################################################
@@ -43,98 +45,98 @@ def index():
 
     return render_template('index.html')
 
+
+# List of sample names
 @bb_db.route('/names')
 def names():
-    """List of sample names.
 
-    Returns a list of sample names in the format
-    [
-        "BB_940",
-        "BB_941",
-        "BB_943",
-        "BB_944",
-        "BB_945",
-        "BB_946",
-        "BB_947",
-        ...
-    ]
+    mapper = inspect(Samples)
 
-    """
+    nameList = []
+    for row in mapper.columns:
+        nameList.append(row.name)
+    del nameList[0]
+
+    return jsonify(nameList)
 
 
-
+# List of OTU descriptions
 @bb_db.route('/otu')
 def otu():
-    """List of OTU descriptions.
 
-    Returns a list of OTU descriptions in the following format
+    results = session.query(Otu.lowest_taxonomic_unit_found).all()
 
-    [
-        "Archaea;Euryarchaeota;Halobacteria;Halobacteriales;Halobacteriaceae;Halococcus",
-        "Archaea;Euryarchaeota;Halobacteria;Halobacteriales;Halobacteriaceae;Halococcus",
-        "Bacteria",
-        "Bacteria",
-        "Bacteria",
-        ...
-    ]
-    """
+    descriptions = list(np.ravel(results))
+
+    return jsonify(descriptions)
+
+
+# MetaData for a given sample
 @bb_db.route('/metadata/<sample>')
-def metadata():
-    """MetaData for a given sample.
+def metadata(sample):
 
-    Args: Sample in the format: `BB_940`
+    sampleId = sample.split('_')
 
-    Returns a json dictionary of sample metadata in the format
+    results = session.query(Metadata).\
+        filter(Metadata.SAMPLEID == sampleId[1]).first()
 
-    {
-        AGE: 24,
-        BBTYPE: "I",
-        ETHNICITY: "Caucasian",
-        GENDER: "F",
-        LOCATION: "Beaufort/NC",
-        SAMPLEID: 940
-    }
-    """
+    filteredResults = {
+        'AGE': results.AGE,
+        'BBTYPE': results.BBTYPE,
+        'ETHNICITY': results.ETHNICITY,
+        'GENDER': results.GENDER,
+        'LOCATION': results.LOCATION,
+        'SAMPLEID': results.SAMPLEID
+        }
+
+    return jsonify(filteredResults)
 
 
-
+# Weekly Washing Frequency as a number
 @bb_db.route('/wfreq/<sample>')
-def washingFrequency():
-    """Weekly Washing Frequency as a number.
+def washingFrequency(sample):
 
-    Args: Sample in the format: `BB_940`
+    sampleId = sample.split('_')
 
-    Returns an integer value for the weekly washing frequency `WFREQ`
-    """
+    results = session.query(Metadata).\
+        filter(Metadata.SAMPLEID == sampleId[1]).first()
+
+    wfeq = results.WFREQ
+
+    return jsonify(wfeq)
 
 
 @bb_db.route('/samples/<sample>')
-def samples():
-    """OTU IDs and Sample Values for a given sample.
+def samples(sample):
 
-    Sort your Pandas DataFrame (OTU ID and Sample Value)
-    in Descending Order by Sample Value
+    sel = [
+            Samples.otu_id,
+            getattr(Samples, sample),
+            Otu.lowest_taxonomic_unit_found
+          ]
 
-    Return a list of dictionaries containing sorted lists  for `otu_ids`
-    and `sample_values`
+    results = session.query(*sel).\
+        join(Otu, Samples.otu_id==Otu.otu_id).\
+        order_by(getattr(Samples, sample).desc()).all()
 
-    [
-        {
-            otu_ids: [
-                1166,
-                2858,
-                481,
-                ...
-            ],
-            sample_values: [
-                163,
-                126,
-                113,
-                ...
-            ]
-        }
-    ]
-    """
+    ids = []
+    values = []
+    descriptions = []
+    i=0
+    while i<len(results):
+        ids.append(results[i][0])
+        values.append(results[i][1])
+        descriptions.append(results[i][2])
+        i += 1
+
+    sampleDetails = {
+        'otu_ids': ids,
+        'sample_values': values,
+        'descriptions': descriptions
+    }
+
+    return jsonify(sampleDetails)
+
 
 if __name__ == '__main__':
     bb_db.run(debug=True)

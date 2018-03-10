@@ -17,9 +17,6 @@ function createPieChart(trace, restyle) {
 
     if (restyle) {
         Plotly.restyle('pie', trace);
-
-
-
     }
 
     var trace1 = {
@@ -46,7 +43,7 @@ function createBubblePlot(trace, restyle) {
         x: trace.x,
         y: trace.y,
         mode: 'markers',
-        text: trace.descriptions
+        text: trace.descriptions,
         marker: {
             size: trace.marker.size
             }

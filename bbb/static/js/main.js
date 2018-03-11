@@ -137,32 +137,3 @@ renderDropdown();
 pullPieData('BB_940');
 pullBubbleData('BB_940');
 populateMetadata('BB_940');
-
-// var WIDTH_IN_PERCENT_OF_PARENT = 100,
-//     HEIGHT_IN_PERCENT_OF_PARENT = 100;
-//
-// var pd3 = d3.select('#pie')
-//     .style({
-//         width: WIDTH_IN_PERCENT_OF_PARENT + '%',
-//         'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
-//         height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
-//         'margin-top': (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
-//     });
-//
-// var bd3 = d3.select('#bubble')
-//     .style({
-//         width: WIDTH_IN_PERCENT_OF_PARENT + '%',
-//         'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
-//         height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
-//         'margin-top': (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
-//     });
-//
-// var $pieDiv = pd3.node();
-// var $bubbleDiv = bd3.node();
-//
-// // Plotly.plot(Green_Line_E, data, layout, {showLink: false});
-//
-// window.onresize = function() {
-//     Plotly.Plots.resize( $pieDiv );
-//     Plotly.Plots.resize( $bubbleDiv );
-// };

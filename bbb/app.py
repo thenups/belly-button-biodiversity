@@ -12,7 +12,6 @@ from sqlalchemy import create_engine, func, inspect
 
 import os
 from flask_sqlalchemy import SQLAlchemy
-from flask_sqlalchemy_session import flask_scoped_session
 
 #################################################
 # Flask Setup

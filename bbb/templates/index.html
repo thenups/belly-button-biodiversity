@@ -8,6 +8,9 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
+        <!-- My CSS -->
+        <link rel="stylesheet" href="static/styles/main.css">
+
         <title>Belly Button Biodiversity</title>
 
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -22,24 +25,25 @@
             </div>
 
             <div id="main-body" class="row">
-                <div class="col-md-2">
-                    <div class="btn">
-                        <select id="sampleChoices" onchange="optionChanged(this.value)"></select>
+                <div class="col-md-3">
+                    <div id="selectorDiv">
+                        <h5>SELECT Sample</h5>
+                        <select id="sampleChoices" class="dropdown" onchange="optionChanged(this.value)"></select>
                     </div>
 
                     <div id="metadata">
                         <div id="metadataHeader" class="">
-                            Sample MetaData
+                            <h3>Sample MetaData</h3>
                         </div>
                         <div id="metadataInfo" class=""></div>
                     </div>
 
                 </div>
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <div id="pie"></div>
                 </div>
 
-                <div class="col-md-10">
+                <div class="col-md-12">
                     <div id="bubble"></div>
                 </div>
 

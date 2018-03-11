@@ -13,7 +13,7 @@ function renderDropdown() {
     });
 };
 
-function createPieChart(trace, restyle) {
+function createPieChart(trace, id, restyle) {
 
     if (restyle) {
         Plotly.restyle('pie', trace);
@@ -22,19 +22,22 @@ function createPieChart(trace, restyle) {
     var trace1 = {
         values: trace.values,
         labels: trace.labels,
-        text: trace.descriptions,
+        text: trace.desc,
+        textinfo: 'percent',
+        hoverinfo: 'label+text+value',
         type: 'pie'
     }
 
     var data = [trace1];
     var layout = {
-        title: 'Pie Chart'
+        title: id +': Top 10 OTU Microbiomes',
+        legend: {"orientation": "h"}
     };
 
     Plotly.newPlot('pie',data,layout)
 }
 
-function createBubblePlot(trace, restyle) {
+function createBubblePlot(trace, id, restyle) {
     if (restyle) {
         Plotly.restyle('bubble', trace);
     };
@@ -43,19 +46,19 @@ function createBubblePlot(trace, restyle) {
         x: trace.x,
         y: trace.y,
         mode: 'markers',
-        text: trace.descriptions,
+        text: trace.desc,
+        hoverinfo: "x+y+text",
         marker: {
-            size: trace.marker.size
+            size: trace.marker.size,
+            color: trace.x
             }
     };
-    console.log(trace.marker.size);
+
     var data = [trace1];
 
     var layout = {
-        title: 'Marker Size',
-        showlegend: false,
-        height: 600,
-        width: 600
+        title: id + ': OTU Volume and Spread',
+        showlegend: false
         };
 
     Plotly.newPlot('bubble', data, layout);
@@ -74,15 +77,13 @@ function populateMetadata(sample) {
 
         selectElem = d3.select('#metadataInfo');
         selectElem.html('');
-        console.log('CLEAR HTML');
+
         selectElem.selectAll('p')
             .data(details)
             .enter()
             .append('p')
             .attr('class','metaDetails')
             .text(function(d){return d;});
-
-        console.log('POPULATE');
     });
 };
 
@@ -95,12 +96,12 @@ function pullPieData(sample, restyle){
         var trace = {
             values: data.sample_values.slice(0,10),
             labels: data.otu_ids.slice(0,10),
-            text: data.descriptions.slice(0,10)
+            desc: data.descriptions.slice(0,10)
         };
 
-        if (restyle) {createPieChart(trace, true);};
+        if (restyle) {createPieChart(trace, data.id, true);};
 
-        createPieChart(trace);
+        createPieChart(trace, data.id);
     });
 }
 
@@ -116,12 +117,12 @@ function pullBubbleData(sample, restyle){
             marker: {
                 size: data.sample_values,
             },
-            text: data.descriptions
+            desc: data.descriptions
         }
 
-        if (restyle) {createBubblePlot(trace, true);};
+        if (restyle) {createBubblePlot(trace, data.id, true);};
 
-        createBubblePlot(trace);
+        createBubblePlot(trace, data.id);
     });
 }
 
@@ -136,3 +137,32 @@ renderDropdown();
 pullPieData('BB_940');
 pullBubbleData('BB_940');
 populateMetadata('BB_940');
+
+// var WIDTH_IN_PERCENT_OF_PARENT = 100,
+//     HEIGHT_IN_PERCENT_OF_PARENT = 100;
+//
+// var pd3 = d3.select('#pie')
+//     .style({
+//         width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+//         'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+//         height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+//         'margin-top': (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+//     });
+//
+// var bd3 = d3.select('#bubble')
+//     .style({
+//         width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+//         'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+//         height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+//         'margin-top': (100 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+//     });
+//
+// var $pieDiv = pd3.node();
+// var $bubbleDiv = bd3.node();
+//
+// // Plotly.plot(Green_Line_E, data, layout, {showLink: false});
+//
+// window.onresize = function() {
+//     Plotly.Plots.resize( $pieDiv );
+//     Plotly.Plots.resize( $bubbleDiv );
+// };

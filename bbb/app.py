@@ -8,11 +8,14 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func, inspect
 
+import os
+# from flask_sqlalchemy import SQLAlchemy
+
 #################################################
 # Database Setup
 #################################################
 
-engine = create_engine("sqlite:///static/data/belly_button_biodiversity.sqlite", echo=False)
+engine = create_engine("sqlite:///belly_button_biodiversity.sqlite", echo=False)
 
 # reflect an existing database into a new model
 Base = automap_base()
@@ -32,14 +35,14 @@ session = Session(engine)
 # Flask Setup
 #################################################
 
-bb_db = Flask(__name__)
+app = Flask(__name__)
 
 
 #################################################
 # Flask Routes
 #################################################
 
-@bb_db.route('/')
+@app.route('/')
 def index():
     """Return the dashboard homepage."""
 
@@ -47,7 +50,7 @@ def index():
 
 
 # List of sample names
-@bb_db.route('/names')
+@app.route('/names')
 def names():
 
     mapper = inspect(Samples)
@@ -61,7 +64,7 @@ def names():
 
 
 # List of OTU descriptions
-@bb_db.route('/otu')
+@app.route('/otu')
 def otu():
 
     results = session.query(Otu.lowest_taxonomic_unit_found).all()
@@ -72,7 +75,7 @@ def otu():
 
 
 # MetaData for a given sample
-@bb_db.route('/metadata/<sample>')
+@app.route('/metadata/<sample>')
 def metadata(sample):
 
     sampleId = sample.split('_')
@@ -93,7 +96,7 @@ def metadata(sample):
 
 
 # Weekly Washing Frequency as a number
-@bb_db.route('/wfreq/<sample>')
+@app.route('/wfreq/<sample>')
 def washingFrequency(sample):
 
     sampleId = sample.split('_')
@@ -106,7 +109,7 @@ def washingFrequency(sample):
     return jsonify(wfeq)
 
 
-@bb_db.route('/samples/<sample>')
+@app.route('/samples/<sample>')
 def samples(sample):
 
     sel = [
@@ -130,6 +133,7 @@ def samples(sample):
         i += 1
 
     sampleDetails = {
+        'id': sample,
         'otu_ids': ids,
         'sample_values': values,
         'descriptions': descriptions
@@ -139,4 +143,4 @@ def samples(sample):
 
 
 if __name__ == '__main__':
-    bb_db.run(debug=True)
+    app.run(debug=True)

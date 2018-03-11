@@ -1,47 +1,57 @@
+#################################################
 # Dependencies
+#################################################
 import numpy as np
 
 from flask import Flask, render_template, jsonify, redirect
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import create_engine, func, inspect
 
 import os
-# from flask_sqlalchemy import SQLAlchemy
-
-#################################################
-# Database Setup
-#################################################
-
-engine = create_engine("sqlite:///belly_button_biodiversity.sqlite", echo=False)
-
-# reflect an existing database into a new model
-Base = automap_base()
-# reflect the tables
-Base.prepare(engine, reflect=True)
-
-# Save reference to the table
-Metadata = Base.classes.samples_metadata
-Samples = Base.classes.samples
-Otu = Base.classes.otu
-
-# Create our session (link) from Python to the DB
-session = Session(engine)
-
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy_session import flask_scoped_session
 
 #################################################
 # Flask Setup
 #################################################
-
 app = Flask(__name__)
+
+#################################################
+# Database Setup
+#################################################
+# Assign databse URL to app
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or "sqlite:///static/data/belly_button_biodiversity.sqlite"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Create our session (link) from Python to the DB
+engine = create_engine(os.environ.get('DATABASE_URL', '') or "sqlite:///static/data/belly_button_biodiversity.sqlite")
+
+# Create SQLAlchemy object
+db = SQLAlchemy(app)
+
+#################################################
+# Database Setup
+#################################################
+# Reflect tables
+db.reflect()
+
+class Metadata(db.Model):
+    __tablename__ = 'samples_metadata'
+
+class Samples(db.Model):
+    __tablename__ = 'samples'
+
+class Otu(db.Model):
+    __tablename__ = 'otu'
 
 
 #################################################
 # Flask Routes
 #################################################
-
+# Full dashboard
 @app.route('/')
 def index():
     """Return the dashboard homepage."""
@@ -67,7 +77,7 @@ def names():
 @app.route('/otu')
 def otu():
 
-    results = session.query(Otu.lowest_taxonomic_unit_found).all()
+    results = db.session.query(Otu.lowest_taxonomic_unit_found).all()
 
     descriptions = list(np.ravel(results))
 
@@ -80,7 +90,7 @@ def metadata(sample):
 
     sampleId = sample.split('_')
 
-    results = session.query(Metadata).\
+    results = db.session.query(Metadata).\
         filter(Metadata.SAMPLEID == sampleId[1]).first()
 
     filteredResults = {
@@ -101,7 +111,7 @@ def washingFrequency(sample):
 
     sampleId = sample.split('_')
 
-    results = session.query(Metadata).\
+    results = db.session.query(Metadata).\
         filter(Metadata.SAMPLEID == sampleId[1]).first()
 
     wfeq = results.WFREQ
@@ -118,7 +128,7 @@ def samples(sample):
             Otu.lowest_taxonomic_unit_found
           ]
 
-    results = session.query(*sel).\
+    results = db.session.query(*sel).\
         join(Otu, Samples.otu_id==Otu.otu_id).\
         order_by(getattr(Samples, sample).desc()).all()
 

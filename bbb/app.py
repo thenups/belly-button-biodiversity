@@ -8,7 +8,7 @@ from flask import Flask, render_template, jsonify, redirect
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy import create_engine, func, inspect
+from sqlalchemy import create_engine, func, inspect, Column, Integer, String
 
 import os
 from flask_sqlalchemy import SQLAlchemy
@@ -44,10 +44,8 @@ class Metadata(db.Model):
     #     'schema': 'data',
     #     'autoload_with': db.engine
     # }
-
-    # __mapper_args__ = {
-    #     'primary_key': 'SAMPLEID'
-    # }
+    __table_args__ = {'extend_existing': True}
+    SAMPLEID = Column(primary_key=True)
 
 class Samples(db.Model):
     __tablename__ = 'samples'
@@ -59,6 +57,8 @@ class Samples(db.Model):
     # __mapper_args__ = {
     #     'primary_key': 'otu_id'
     # }
+    __table_args__ = {'extend_existing': True}
+    otu_id = Column(primary_key=True)
 
 class Otu(db.Model):
     __tablename__ = 'otu'
@@ -70,6 +70,8 @@ class Otu(db.Model):
     # __mapper_args__ = {
     #     'primary_key': 'otu_id'
     # }
+    __table_args__ = {'extend_existing': True}
+    otu_id = Column(primary_key=True)
 
 
 #################################################

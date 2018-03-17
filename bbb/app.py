@@ -26,7 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or "s
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Create our session (link) from Python to the DB
-engine = create_engine('sqlite:///static/data/belly_button_biodiversity.sqlite')
+engine = create_engine(os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite')
 
 # Create SQLAlchemy object
 db = SQLAlchemy(app)

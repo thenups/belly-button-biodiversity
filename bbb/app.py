@@ -38,13 +38,22 @@ db = SQLAlchemy(app)
 db.reflect()
 
 class Metadata(db.Model):
-    __tablename__ = 'samples_metadata'
+    __tablename__ = samples_metadata
+    __mapper_args__ = {
+        'primary_key':[samples_metadata.SAMPLEID]
+    }
 
 class Samples(db.Model):
-    __tablename__ = 'samples'
+    __tablename__ = samples
+    __mapper_args__ = {
+        'primary_key':[samples.otu_id]
+    }
 
 class Otu(db.Model):
-    __tablename__ = 'otu'
+    __tablename__ = otu
+    __mapper_args__ = {
+        'primary_key':[otu.otu_id]
+    }
 
 
 #################################################

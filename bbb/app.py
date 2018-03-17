@@ -39,21 +39,37 @@ db.reflect()
 
 class Metadata(db.Model):
     __tablename__ = 'samples_metadata'
-    __mapper_args__ = {
-        'primary_key': 'SAMPLEID'
-    }
+    # __table_args__ = {
+    #     'autoload': True,
+    #     'schema': 'data',
+    #     'autoload_with': db.engine
+    # }
+
+    # __mapper_args__ = {
+    #     'primary_key': 'SAMPLEID'
+    # }
 
 class Samples(db.Model):
     __tablename__ = 'samples'
-    __mapper_args__ = {
-        'primary_key': 'otu_id'
-    }
+    # __table_args__ = {
+    #     'autoload': True,
+    #     'schema': 'data',
+    #     'autoload_with': db.engine
+    # }
+    # __mapper_args__ = {
+    #     'primary_key': 'otu_id'
+    # }
 
 class Otu(db.Model):
     __tablename__ = 'otu'
-    __mapper_args__ = {
-        'primary_key': 'otu_id'
-    }
+    # __table_args__ = {
+    #     'autoload': True,
+    #     'schema': 'data',
+    #     'autoload_with': db.engine
+    # }
+    # __mapper_args__ = {
+    #     'primary_key': 'otu_id'
+    # }
 
 
 #################################################

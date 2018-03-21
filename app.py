@@ -12,16 +12,19 @@ from sqlalchemy.orm import Session, sessionmaker, scoped_session, Query
 from sqlalchemy import create_engine, func, inspect, Column, Integer, String
 
 import os
-# from flask_sqlalchemy import SQLAlchemy
 
-
+#################################################
+# Engine Setup
+#################################################
 engine = create_engine('sqlite:///db/belly_button_biodiversity.sqlite', convert_unicode=True, echo=False)
 Base = declarative_base()
 Base.metadata.reflect(engine)
 
+#################################################
+# Database Setup
+#################################################
 class Metadata(Base):
     __table__ = Base.metadata.tables['samples_metadata']
-
 
 class Samples(Base):
     __table__ = Base.metadata.tables['samples']
@@ -29,49 +32,15 @@ class Samples(Base):
 class Otu(Base):
     __table__ = Base.metadata.tables['otu']
 
+#################################################
+# Session Setup
+#################################################
 session = scoped_session(sessionmaker(bind=engine))
 
 #################################################
 # Flask Setup
 #################################################
 app = Flask(__name__)
-
-#################################################
-# Database Setup
-#################################################
-# Assign databse URL to app
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#
-# # Create our session (link) from Python to the DB
-# # engine = create_engine(os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite')
-#
-# # Create SQLAlchemy object
-# db = SQLAlchemy(app)
-
-#################################################
-# Database Setup
-#################################################
-# Reflect tables
-# db.Model.metadata.reflect(db.engine)
-
-# class Metadata(db.Model):
-#     __table__ = db.Model.metadata.tables['samples_metadata']
-#
-#     def __repr__(self):
-#         return self.DISTRICT
-#
-# class Samples(db.Model):
-#     __table__ = db.Model.metadata.tables['samples']
-#
-#     def __repr__(self):
-#         return self.DISTRICT
-#
-# class Otu(db.Model):
-#     __table__ = db.Model.metadata.tables['otu']
-#
-#     def __repr__(self):
-#         return self.DISTRICT
 
 
 #################################################

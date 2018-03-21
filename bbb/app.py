@@ -38,17 +38,22 @@ db = SQLAlchemy(app)
 db.reflect()
 
 class Metadata(db.Model):
-    __tablename__ = 'samples_metadata'
+    __table__ = db.Model.metadata.tables['samples_metadata']
+    # __tablename__ = 'samples_metadata'
     # __table_args__ = {
     #     'autoload': True,
     #     'schema': 'data',
     #     'autoload_with': db.engine
     # }
-    __table_args__ = {'extend_existing': True}
-    SAMPLEID = Column(primary_key=True)
+    # __table_args__ = {'extend_existing': True}
+    # SAMPLEID = Column(primary_key=True)
+
+    def __repr__(self):
+        return self.DISTRICT
 
 class Samples(db.Model):
-    __tablename__ = 'samples'
+    __table__ = db.Model.metadata.tables['samples']
+    # __tablename__ = 'samples'
     # __table_args__ = {
     #     'autoload': True,
     #     'schema': 'data',
@@ -57,11 +62,15 @@ class Samples(db.Model):
     # __mapper_args__ = {
     #     'primary_key': 'otu_id'
     # }
-    __table_args__ = {'extend_existing': True}
-    otu_id = Column(primary_key=True)
+    # __table_args__ = {'extend_existing': True}
+    # otu_id = Column(primary_key=True)
+
+    def __repr__(self):
+        return self.DISTRICT
 
 class Otu(db.Model):
-    __tablename__ = 'otu'
+    __table__ = db.Model.metadata.tables['otu']
+    # __tablename__ = 'otu'
     # __table_args__ = {
     #     'autoload': True,
     #     'schema': 'data',
@@ -70,8 +79,10 @@ class Otu(db.Model):
     # __mapper_args__ = {
     #     'primary_key': 'otu_id'
     # }
-    __table_args__ = {'extend_existing': True}
-    otu_id = Column(primary_key=True)
+    # __table_args__ = {'extend_existing': True}
+    # otu_id = Column(primary_key=True)
+    def __repr__(self):
+        return self.DISTRICT
 
 
 #################################################

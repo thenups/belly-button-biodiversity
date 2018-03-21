@@ -22,11 +22,11 @@ app = Flask(__name__)
 # Database Setup
 #################################################
 # Assign databse URL to app
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or "sqlite:///static/data/belly_button_biodiversity.sqlite"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Create our session (link) from Python to the DB
-engine = create_engine(os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite')
+# engine = create_engine(os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite')
 
 # Create SQLAlchemy object
 db = SQLAlchemy(app)
@@ -35,7 +35,7 @@ db = SQLAlchemy(app)
 # Database Setup
 #################################################
 # Reflect tables
-db.reflect()
+db.Model.metadata.reflect(db.engine)
 
 class Metadata(db.Model):
     __table__ = db.Model.metadata.tables['samples_metadata']

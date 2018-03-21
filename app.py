@@ -7,11 +7,29 @@ from flask import Flask, render_template, jsonify, redirect
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session, sessionmaker, scoped_session, Query
 from sqlalchemy import create_engine, func, inspect, Column, Integer, String
 
 import os
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
+
+
+engine = create_engine('sqlite:///db/belly_button_biodiversity.sqlite', convert_unicode=True, echo=False)
+Base = declarative_base()
+Base.metadata.reflect(engine)
+
+class Metadata(Base):
+    __table__ = Base.metadata.tables['samples_metadata']
+
+
+class Samples(Base):
+    __table__ = Base.metadata.tables['samples']
+
+class Otu(Base):
+    __table__ = Base.metadata.tables['otu']
+
+session = scoped_session(sessionmaker(bind=engine))
 
 #################################################
 # Flask Setup
@@ -22,67 +40,38 @@ app = Flask(__name__)
 # Database Setup
 #################################################
 # Assign databse URL to app
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Create our session (link) from Python to the DB
-# engine = create_engine(os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite')
-
-# Create SQLAlchemy object
-db = SQLAlchemy(app)
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#
+# # Create our session (link) from Python to the DB
+# # engine = create_engine(os.environ.get('DATABASE_URL', '') or 'sqlite:///static/data/belly_button_biodiversity.sqlite')
+#
+# # Create SQLAlchemy object
+# db = SQLAlchemy(app)
 
 #################################################
 # Database Setup
 #################################################
 # Reflect tables
-db.Model.metadata.reflect(db.engine)
+# db.Model.metadata.reflect(db.engine)
 
-class Metadata(db.Model):
-    __table__ = db.Model.metadata.tables['samples_metadata']
-    # __tablename__ = 'samples_metadata'
-    # __table_args__ = {
-    #     'autoload': True,
-    #     'schema': 'data',
-    #     'autoload_with': db.engine
-    # }
-    # __table_args__ = {'extend_existing': True}
-    # SAMPLEID = Column(primary_key=True)
-
-    def __repr__(self):
-        return self.DISTRICT
-
-class Samples(db.Model):
-    __table__ = db.Model.metadata.tables['samples']
-    # __tablename__ = 'samples'
-    # __table_args__ = {
-    #     'autoload': True,
-    #     'schema': 'data',
-    #     'autoload_with': db.engine
-    # }
-    # __mapper_args__ = {
-    #     'primary_key': 'otu_id'
-    # }
-    # __table_args__ = {'extend_existing': True}
-    # otu_id = Column(primary_key=True)
-
-    def __repr__(self):
-        return self.DISTRICT
-
-class Otu(db.Model):
-    __table__ = db.Model.metadata.tables['otu']
-    # __tablename__ = 'otu'
-    # __table_args__ = {
-    #     'autoload': True,
-    #     'schema': 'data',
-    #     'autoload_with': db.engine
-    # }
-    # __mapper_args__ = {
-    #     'primary_key': 'otu_id'
-    # }
-    # __table_args__ = {'extend_existing': True}
-    # otu_id = Column(primary_key=True)
-    def __repr__(self):
-        return self.DISTRICT
+# class Metadata(db.Model):
+#     __table__ = db.Model.metadata.tables['samples_metadata']
+#
+#     def __repr__(self):
+#         return self.DISTRICT
+#
+# class Samples(db.Model):
+#     __table__ = db.Model.metadata.tables['samples']
+#
+#     def __repr__(self):
+#         return self.DISTRICT
+#
+# class Otu(db.Model):
+#     __table__ = db.Model.metadata.tables['otu']
+#
+#     def __repr__(self):
+#         return self.DISTRICT
 
 
 #################################################
@@ -114,7 +103,7 @@ def names():
 @app.route('/otu')
 def otu():
 
-    results = db.session.query(Otu.lowest_taxonomic_unit_found).all()
+    results = session.query(Otu.lowest_taxonomic_unit_found).all()
 
     descriptions = list(np.ravel(results))
 
@@ -127,7 +116,7 @@ def metadata(sample):
 
     sampleId = sample.split('_')
 
-    results = db.session.query(Metadata).\
+    results = session.query(Metadata).\
         filter(Metadata.SAMPLEID == sampleId[1]).first()
 
     filteredResults = {
@@ -148,7 +137,7 @@ def washingFrequency(sample):
 
     sampleId = sample.split('_')
 
-    results = db.session.query(Metadata).\
+    results = session.query(Metadata).\
         filter(Metadata.SAMPLEID == sampleId[1]).first()
 
     wfeq = results.WFREQ
@@ -165,7 +154,7 @@ def samples(sample):
             Otu.lowest_taxonomic_unit_found
           ]
 
-    results = db.session.query(*sel).\
+    results = session.query(*sel).\
         join(Otu, Samples.otu_id==Otu.otu_id).\
         order_by(getattr(Samples, sample).desc()).all()
 
